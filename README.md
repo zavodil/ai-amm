@@ -139,6 +139,8 @@ This project is licensed under the MIT License.
 
 ## DEMO DEPLOYMENT:
 
-Smart contract: amm.ai-is-near.near
+Smart contract: `amm.ai-is-near.near`
+
 NEAR AI AGENT: https://app.near.ai/agents/zavodil.near/amm/latest/source
+
 Example of transaction: https://nearblocks.io/txns/6PifgzUUv7YLeWYDNAzRZdrNsd7ooraCqvhVD8DGU6Ui#execution
