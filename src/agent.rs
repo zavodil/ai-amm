@@ -47,7 +47,11 @@ impl Contract {
     pub fn agent_response(&mut self, data_id: CryptoHash, amount_out: U128) {
         log!("Agent resolved the swap. Amount_out: {}", amount_out.0);
 
-        assert_eq!(env::predecessor_account_id(), self.agent_account_id, "Illegal agent account_id");
+        assert_eq!(
+            env::predecessor_account_id(),
+            self.agent_account_id,
+            "Illegal agent account_id"
+        );
 
         // resume the initial swap transaction with the amount_out from agent
         if !env::promise_yield_resume(&data_id, &serde_json::to_vec(&amount_out).unwrap()) {
@@ -96,5 +100,3 @@ impl Contract {
         }
     }
 }
-
-

@@ -4,8 +4,8 @@ use near_sdk::collections::UnorderedMap;
 use near_sdk::json_types::U128;
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{
-    env, ext_contract, log, near_bindgen, AccountId, BorshStorageKey, Gas,
-    NearToken, PanicOnDefault, PromiseOrValue,
+    env, ext_contract, log, near_bindgen, AccountId, BorshStorageKey, Gas, NearToken,
+    PanicOnDefault, PromiseOrValue,
 };
 use schemars::JsonSchema;
 use std::convert::TryInto;
@@ -30,6 +30,7 @@ enum StorageKey {
     Pools,
     Deposits,
     TokenDeposits { account_id: AccountId },
+    Shares { pool_key: String },
 }
 
 #[derive(Deserialize)]
@@ -49,9 +50,7 @@ pub enum Action {
 #[derive(Deserialize)]
 #[serde(crate = "near_sdk::serde")]
 pub enum TokenReceiverMessage {
-    Execute {
-        actions: Vec<Action>
-    },
+    Execute { actions: Vec<Action> },
 }
 
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
@@ -149,7 +148,9 @@ impl Contract {
         let pool_key = get_pool_key(&token_a, &token_b);
         assert!(self.pools.get(&pool_key).is_none(), "Pool already exists");
 
-        let mut shares_map = UnorderedMap::new(format!("s:{}", pool_key).as_bytes());
+        let mut shares_map = UnorderedMap::new(StorageKey::Shares {
+            pool_key: pool_key.clone(),
+        });
 
         let initial_shares = INIT_SHARES_SUPPLY;
         shares_map.insert(&env::predecessor_account_id(), &initial_shares);
@@ -232,9 +233,7 @@ impl Contract {
             serde_json::from_str(&msg).expect("Failed to parse message");
 
         match message {
-            TokenReceiverMessage::Execute {
-                actions
-            } => {
+            TokenReceiverMessage::Execute { actions } => {
                 for action in actions {
                     match action {
                         Action::Swap {
